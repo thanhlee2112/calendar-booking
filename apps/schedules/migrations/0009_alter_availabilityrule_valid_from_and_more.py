@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('schedules', '0008_alter_availabilityrule_valid_from_and_more'),
+        ('schedules', '0004_remove_ruleweekday_rule_id_ruleweekday_rule'),
     ]
 
     operations = [
