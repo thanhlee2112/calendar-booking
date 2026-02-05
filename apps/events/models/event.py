@@ -8,3 +8,8 @@ class Event(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    eligible_notification = models.TextField(blank=True, null=True)
+    ineligible_notification = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ['start_time', 'end_time']

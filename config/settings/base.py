@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
 import os
 import sys
 load_dotenv()
@@ -24,7 +25,7 @@ sys.path.append(str(BASE_DIR / 'apps'))
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-++^v8$(rncf9=f2yp3qtl&x(==ow_tapu#icgz+mss(k05+0od'
+SECRET_KEY = os.getenv('SECRET_KEY', 'your-default-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
@@ -32,14 +33,17 @@ SECRET_KEY = 'django-insecure-++^v8$(rncf9=f2yp3qtl&x(==ow_tapu#icgz+mss(k05+0od
 # Application definition
 
 INSTALLED_APPS = [
+    "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
     'rest_framework',
+    'rest_framework.authtoken',
+    'django.contrib.sites',
+    'rest_framework_simplejwt.token_blacklist',
     
     'allauth',
     'allauth.account',
@@ -53,6 +57,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
 
@@ -67,6 +72,25 @@ MIDDLEWARE = [
 
 SITE_ID = 1
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'user': '1000/hour',
+    },
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
@@ -101,6 +125,11 @@ DATABASES = {
     }
 }
 
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
+DISCORD_CHANNEL_ID = os.getenv('DISCORD_CHANNEL_ID')
+BASE_DISCORD_URL = os.getenv('BASE_DISCORD_URL', 'https://discord.com/api/v10')
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -126,11 +155,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Ho_Chi_Minh'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -149,5 +178,7 @@ ACCOUNT_SIGNUP_FIELDS  = []
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 SOCIALACCOUNT_AUTO_SIGNUP = True
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/auth/discord/success'
 LOGOUT_REDIRECT_URL = '/'
+
+FRONTEND_CALLBACK_URL = os.getenv('FRONTEND_CALLBACK_URL')

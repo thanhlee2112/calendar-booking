@@ -5,3 +5,5 @@ class EventAttendant(models.Model):
     event = models.ForeignKey('events.Event', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     attended_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        unique_together = ['event','user']

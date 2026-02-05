@@ -26,5 +26,4 @@ class RuleWeekday(models.Model):
         return self.get_weekday_display()
     
     class Meta:
-        unique_together = ('rule_id', 'weekday')
         ordering = ['rule_id']

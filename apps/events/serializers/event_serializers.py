@@ -3,9 +3,13 @@ from events.models.event import Event
 
 
 class EventSerializer(serializers.ModelSerializer):
+    activities = serializers.ListField(
+    child = serializers.IntegerField(min_value=0, max_value=6),
+    write_only = True,
+    )
     class Meta:
         model = Event
-        fields = ['id', 'title', 'description', 'start_time', 'end_time', 'created_by']
+        fields = ['id', 'title', 'description', 'start_time', 'end_time', 'created_by', 'activities', 'eligible_notification', 'ineligible_notification']
         read_only_fields = ['id']
 
     def validate(self, data):
