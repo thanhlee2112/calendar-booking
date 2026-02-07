@@ -1,14 +1,9 @@
 FROM python:3.12-slim
-ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y libmysqlclient-dev pkg-config gcc && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-
-RUN apt-get update && apt-get install -y \
-    gcc pkg-config default-libmysqlclient-dev \
-    && rm -rf /var/lib/apt/lists/*
-
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install gunicorn whitenoise
 COPY . .
-CMD ["gunicorn", "--workers", "3", "--bind", "0.0.0.0:8000", "config.wsgi:application"]
+# Script để khởi chạy
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
