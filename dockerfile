@@ -20,7 +20,4 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 COPY . .
 
-# Đảm bảo Django gom static vào đúng folder được volume mount
-RUN python manage.py collectstatic --noinput
-
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
