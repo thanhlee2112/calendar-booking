@@ -1,5 +1,5 @@
 # Sử dụng Python bản nhẹ (slim) để tiết kiệm dung lượng VPS
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 # Thiết lập biến môi trường để Python không tạo file .pyc và log được xuất thẳng ra console
 ENV PYTHONDONTWRITEBYTECODE 1
