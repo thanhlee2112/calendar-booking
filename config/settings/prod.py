@@ -1,5 +1,5 @@
 from .base import *
-
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 allowed_hosts_env = os.getenv("DJANGO_ALLOWED_HOSTS")
 if allowed_hosts_env:
@@ -8,3 +8,4 @@ if allowed_hosts_env:
 else:
     # Nếu trống hoàn toàn, mặc định cho phép localhost để tránh sập app
     ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
+    
