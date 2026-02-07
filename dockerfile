@@ -1,10 +1,8 @@
 FROM python:3.12-slim
 
-# Thiết lập biến môi trường để Python không tạo file .pyc và log được xuất thẳng ra terminal
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Cài đặt dependencies hệ thống cho MySQL
 RUN apt-get update && apt-get install -y \
     default-libmysqlclient-dev \
     pkg-config \
@@ -15,7 +13,6 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Nâng cấp pip và cài đặt thư viện
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
@@ -23,5 +20,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 COPY . .
 
-# Chạy bằng Gunicorn
+# Đảm bảo Django gom static vào đúng folder được volume mount
+RUN python manage.py collectstatic --noinput
+
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
