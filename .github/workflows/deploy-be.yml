@@ -1,0 +1,39 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH and Update Backend on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # 1. Vào thư mục chứa dự án (nơi có docker-compose.yml)
+            cd /home/ubuntu/scheduler/calendar-booking
+
+            # 2. Cập nhật code Backend (Giả sử folder là 'backend' hoặc nằm trong gốc)
+            # Nếu backend nằm trong folder riêng, hãy cd vào đó để pull
+            git pull origin main
+
+            # 3. Build lại Image cho Backend (để cập nhật các thư viện mới trong requirements.txt)
+            # Chúng ta dùng --build để Docker nhận diện thay đổi trong source code/dependencies
+            docker compose up -d --build backend
+
+            # 4. Chạy Migration để cập nhật cấu trúc Database (nếu có thay đổi models)
+            # 'backend' là tên service trong file docker-compose.yml của bạn
+            docker compose exec -T backend python manage.py migrate --noinput
+
+            # 5. Gom file tĩnh của Django (nếu bạn dùng Nginx để phục vụ admin/static)
+            docker compose exec -T backend python manage.py collectstatic --noinput
+
+            # 6. Dọn dẹp các Docker image cũ để giải phóng dung lượng ổ cứng
+            docker image prune -f
+
+            echo "Backend Deployment Successful!"
