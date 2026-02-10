@@ -2,6 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from schedules.services.schedule_services import ScheduleService
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from django.db.models import Q
 
 from django.core.exceptions import ValidationError
@@ -27,6 +28,13 @@ class ScheduleViewSet(ModelViewSet):
                 range_filter &= Q(valid_to__lte=valid_to)
             qs = qs.filter(null_filter | range_filter)
         return qs
+    
+    @action(detail=False, methods=['get'], url_path='all')
+    def all(self, request):
+        queryset = self.get_queryset()
+        serializer = ScheduleSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
+
     def create(self, request):
         # Set the user to the authenticated user on creation
         serializer = ScheduleSerializer(data=request.data, context={'request': request})
@@ -36,3 +44,11 @@ class ScheduleViewSet(ModelViewSet):
             return Response(serializer.data, status=201)
         except ValidationError as e:
             return Response({'detail': e.message}, status=400)
+        
+    def delete(self, request, pk=None):
+        try:
+            instance = self.get_object()
+            ScheduleService().delete(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({"error": '; '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
