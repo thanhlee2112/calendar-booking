@@ -25,3 +25,14 @@ class EventViewSet(ModelViewSet):
         event = EventService().event_detail(pk)
         serializer = EventDetailSerializer(event, context={'request': request})
         return Response(serializer.data)
+    
+    def update(self, request, pk=None):
+        try:
+            EventService().update_event(
+                    event_id=pk,
+                    user=self.request.user,
+                    event_data=request.data,
+                )
+            return Response({"message": "Event updated successfully."}, status=204)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)

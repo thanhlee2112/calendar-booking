@@ -21,7 +21,7 @@ class DiscordLoginView(APIView):
         #     return redirect(settings.FRONTEND_LOGIN_URL)
         tokens = AuthService.generate_jwt(user)
         frontend_url = settings.FRONTEND_CALLBACK_URL
-        redirect_url = (f"{frontend_url}?access={tokens['access']}&refresh={tokens['refresh']}")
+        redirect_url = (f"{frontend_url}?access={tokens['access']}&refresh={tokens['refresh']}&user={user.id}")
         return redirect(redirect_url)
     
 
