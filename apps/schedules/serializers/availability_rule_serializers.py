@@ -11,6 +11,7 @@ class AvailabilityRuleSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
+    username = serializers.SerializerMethodField(read_only=True)
     rule_weekdays = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = AvailabilityRule
@@ -19,6 +20,7 @@ class AvailabilityRuleSerializer(serializers.ModelSerializer):
             'user',
             'start_time',
             'rule_weekdays',
+            'username',
             'weekday',
             'end_time',
             'valid_from',
@@ -35,3 +37,6 @@ class AvailabilityRuleSerializer(serializers.ModelSerializer):
 
     def get_rule_weekdays(self, obj):
         return list(obj.rule_weekdays.values_list('weekday', flat=True))
+    
+    def get_username(self, obj):
+        return obj.user.username if obj.user else None

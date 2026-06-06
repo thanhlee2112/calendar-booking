@@ -10,6 +10,7 @@ class Event(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     eligible_notification = models.TextField(blank=True, null=True)
     ineligible_notification = models.TextField(blank=True, null=True)
+    creator_channel_id = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         unique_together = ['start_time', 'end_time']

@@ -23,7 +23,7 @@ class DiscordNotificationService:
         return response.json()
     
         
-    def notify_schedule_conflict(self, channel_id, user_discord_id, notification_message):
+    def send_notification(self, channel_id, user_discord_id, notification_message):
         discord_ids = ', '.join([f"<@{uid}>" for uid in user_discord_id])
-        content = f"{discord_ids} \n {notification_message}"
+        content = f"{discord_ids} \n {notification_message} \n Truy cập link để xem chi tiết: {settings.FRONTEND_URL}"
         self.send_message(channel_id=channel_id, content=content)

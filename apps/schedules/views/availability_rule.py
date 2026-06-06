@@ -2,6 +2,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from schedules.services.availability_rule_services import AvailabilityRuleService
 from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError, APIException
 from rest_framework import status
 from django.db.models import Q
 from schedules.models.availability_rule import AvailabilityRule
@@ -26,10 +28,25 @@ class AvailabilityRuleViewSet(ModelViewSet):
             qs = qs.filter(null_filter | range_filter)
         return qs
     
+    @action(detail=False, methods=['get'], url_path='all')
+    def all(self, request):
+        queryset = self.get_queryset()
+        serializer = AvailabilityRuleSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
+
     def create(self, request):
-        # Set the user to the authenticated user on creation
-        serializer = AvailabilityRuleSerializer(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        instance = AvailabilityRuleService().create(self.request.user, serializer.validated_data)
-        response_serializer = AvailabilityRuleSerializer(instance, context={'request': request})
-        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+        try:
+            serializer = AvailabilityRuleSerializer(data=request.data, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            instance = AvailabilityRuleService().create(self.request.user, serializer.validated_data)
+            response_serializer = AvailabilityRuleSerializer(instance, context={'request': request})
+            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"error": '; '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, pk=None):
+        try:
+            instance = self.get_object()
+            AvailabilityRuleService().delete(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({"error": '; '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)

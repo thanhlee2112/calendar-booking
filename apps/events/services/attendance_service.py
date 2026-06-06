@@ -15,10 +15,11 @@ class AttendanceService():
     
     def create(self, user, validated_data):
         try:
-            if self.is_eligible_for_attendance(user, validated_data['event'].id):
-                data = dict(validated_data)
-                data.pop('user', None)
-                event_attendant = EventAttendant.objects.create(user=user, **data)
+            print(validated_data['event'])
+            if self.is_eligible_for_attendance(user, validated_data['event']):
+                validated_data.pop('user', None)
+                event = Event.objects.get(id=validated_data['event'])
+                event_attendant = EventAttendant.objects.create(user=user, event=event)
             else:
                 raise ValidationError("You are not eligible to attend this event.")
             return event_attendant
